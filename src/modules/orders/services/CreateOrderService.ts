@@ -42,13 +42,13 @@ class CreateProductService {
 
     if (!customer) throw new AppError('Customer not found');
 
-    const foundProducts: Product[] = await this.productsRepository.findAllById(
+    const databaseProducts: Product[] = await this.productsRepository.findAllById(
       products,
     );
 
     const orderProducts: IOrderProduct[] = [];
     products.forEach(product => {
-      const prod = foundProducts.find(p => p.id === product.id);
+      const prod = databaseProducts.find(p => p.id === product.id);
 
       if (!prod)
         throw new AppError(`Product with id ${product.id} does not exists.`);
@@ -63,6 +63,8 @@ class CreateProductService {
         price: prod.price,
         quantity: product.quantity,
       });
+
+      prod.quantity -= product.quantity;
     });
 
     const order = await this.ordersRepository.create({
@@ -70,7 +72,7 @@ class CreateProductService {
       products: orderProducts,
     });
 
-    // Atualizar quantidade
+    await this.productsRepository.updateQuantity(databaseProducts);
 
     return order;
   }
