@@ -26,7 +26,9 @@ class OrdersProducts {
   @Column('uuid')
   product_id: string;
 
-  @ManyToOne(type => Product, product => product.order_products)
+  @ManyToOne(type => Product, product => product.order_products, {
+    eager: true,
+  })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
